@@ -66,9 +66,73 @@ class Student: Person {
 
 ### 데이터 타입 변환 
 
+### 클래스 속성 순회
+- 코틀린에서도 리플렉션을 이용하면 런타임에 프로그램의 구조, 클래스 수정자, 함수 그리고 속성을 분석할 수 있다
+```kotlin
+class Student constructor(var roll_number: Int, var full_name: String)
 
+fun main(args: Array<String>){
+        var student = Student(2013001, "Aanand Shekhar Roy")
+        for (property in Student::class.memberProperties){
+                println("${property.name} = ${property.get(student)}")
+        }
+}
 
+open class Person{
+    val isHuman: Boolean = true
+}
+```
+- Person 클래스를 사용하여 Student 클래스를 확장한 다음 이전에 memberProperties 메소드에서 사용한 것과 동일한 코드를 사용하면 출력코드는 다음과 같다
+```
+full_name = Aanand Shekhar Roy
+roll_number = 2013001
+isHuman = true
+```
+- 따라서 Student 클래스에만 선언된 필드를 반복하는 경우 declaredMemberProperties 함수가 필요하다. 다음은 declaredMemberProperties의 예제이다.
+```kotlin
+        for (property in Student::class.declaredMemberProperties){
+                println("${property.name} = ${property.get(student)}")
+        }
+```
+```
+full_name = Aanand Shekhar Roy
+roll_number = 2013001
+```
 
+### 인라인 속성
+- 코틀린의 장점 중 하나는 함수를 다른 함수의 매개변수로 사용할 수 있다는 것이다. 그러나 그것은 객체이기 때문에 메모리 오버헤드가 발생할 수 있다. (모든 인스턴스는 힙 메모리의 공간을 차지하고, 또한 인자로 넘어간 함수를 호출하는 또 다른 메소드가 필요하기 때문이다)
+- 이러한 상황을 인라인 함수를 사용하여 개선할 수 있다. 인라인 키워드는 함수 내용이 호출 위치에 직접 삽입됨을 의미한다. 이는 함수를 호출할 때 발생되는 오버헤드를 줄이는 데 도움이 된다.
+- 마지막으로 inline 키워드는 backing field가 없는 변수와 해당 접근자와 함께 사용될 수 있다.
+- 속성의 접근자를 인라인으로 만드는 예제를 따라해보자
+```kotlin
+fun main(args: Array<String>) {
+    var a = x()
+    a.valueIsMaxedOut = false
+    println(a)
+}
+
+class x {
+    companion object {
+        val CONST_MAX = 3
+    }
+    
+    var someValue = 3
+    
+    var valueIsMaxedOut: Boolean
+        inline get() = someValue == CONST_MAX
+        inline set(value) {
+            println("Value Set!")
+        }
+}
+```
+- 속성 전체를 인라인으로 정의할수도 있다
+```kotlin
+    inline var alueIsMaxedOut: Boolean
+        get() = someValue == CONST_MAX
+        set(value) {
+            println("Value Set!")
+        }
+```
 
 
 
